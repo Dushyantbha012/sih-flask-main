@@ -114,20 +114,20 @@ def cultural_fit(audio_url):
     # Generate prompt for Groq API
     question = "What is your favorite programming language?"
     prompt = f"""
-You have to judge the user's answer according to what they have spoken (text) and how they have spoken (emotions). The user does not know that the text has been divided into segments so just give a summary, give tips to the user about where and how they can improve. Then generate a score out of 10 for the user's response.
-
-When you have judged it, then create a suitable response to the question with you as the person being interviewed.
+You have to judge the user's answer according to what they have spoken (text) and how they have spoken (emotions). 
+Only rate it as positive, negative or neutral based on the emotions and the text. Rate the response from 1 to 5 with 5 being the most positive and 1 being the most negative.
+Also give a brief explanation of why you rated it as such.
 
 question : {question}
 
 {text_segments[-1]}
 
-{text_segments[0]}
-{text_segments[1]}
-{text_segments[2]}
-{text_segments[3]}
-{text_segments[4]}
-{text_segments[5]}
+text segment 0:{text_segments[0]}
+text segment 1:{text_segments[1]}
+text segment 2:{text_segments[2]}
+text segment 3:{text_segments[3]}
+text segment 4:{text_segments[4]}
+text segment 5:{text_segments[5]}
 
 Top 3 emotions for segment 0:
 {emotions[0][0]}
