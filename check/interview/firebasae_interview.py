@@ -16,7 +16,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class InterviewAssistant:
 
-    def __init__(self, api_key, pdf_path, collection_name="interview_answers", n_q=2, duration=30):
+    def __init__(self, api_key, pdf_path, collection_name="interview_answers", n_q=2, duration=30,difficulty="entry-level"):
         self.api_key = api_key
         self.client = Groq(api_key=api_key)
         self.pdf_path = pdf_path
@@ -24,10 +24,10 @@ class InterviewAssistant:
         self.duration = duration
         self.collection_name = collection_name
         self.resume = self.extract_text_from_pdf(pdf_path)
-
+        self.difficulty = difficulty
         # Initialize Firebase if not already initialized
         if not firebase_admin._apps:
-            cred = credentials.Certificate("/Users/arunkaul/Desktop/SIH-AI-REPO/SIH-AI-REPO/interview_db.json")
+            cred = credentials.Certificate("/Users/dushyantbhardwaj/Documents/Projects/sih-flask-main/check/interview/cred.json")
             firebase_admin.initialize_app(cred)
         self.db = firestore.client()
 
@@ -90,7 +90,7 @@ class InterviewAssistant:
                 print(f"Could not request results from Google Speech Recognition service; {e}")
                 return None
 
-    def generate_question(self, context, difficulty="entry-level"):
+    def generate_question(self, context):
         # Generate a technical question based on the resume and previous questions
         prompt = f"""
         Based on the project details in this resume: {self.resume}, and the previous questions asked: {context}, 
