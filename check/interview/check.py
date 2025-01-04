@@ -92,7 +92,7 @@ async def interview_socket_handler(websocket, path):
         logger.info(f"Received initial data: {initial_data}")
         pdf_url = initial_data.get("resume_pdf")  # Updated key from "pdf_url" to "resume_pdf"
         n_q = initial_data.get("number_of_ques", 10)  # Updated key from "n_q" to "number_of_ques"
-        
+        difficulty = initial_data.get("difficulty")
         if not pdf_url:
             logger.error("PDF URL is missing in initial data.")
             response = {"error": "PDF URL is missing."}
@@ -109,7 +109,7 @@ async def interview_socket_handler(websocket, path):
 
         logger.info("Conducting interview based on PDF.")
         api_key = initial_data.get("api_key", "default_api_key")
-        interview_assistant = InterviewAssistant(api_key, pdf_path, n_q=n_q, duration=1000)
+        interview_assistant = InterviewAssistant(api_key, pdf_path, n_q=n_q, duration=1000,difficulty=difficulty)
         logger.info("Clearing database.")
         interview_assistant.clear_database()
         response = {"status": "Database cleared. Please specify difficulty."}
