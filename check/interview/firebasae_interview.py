@@ -96,7 +96,7 @@ class InterviewAssistant:
         Based on the project details in this resume: {self.resume}, and the previous questions asked: {context}, 
         create a concise and formal technical question related to the candidate's projects, ensuring it remains professional without any extra phrasing.
         Ask the question directly in less than 15 words.
-        Keep the level of the question : {difficulty}
+        Keep the level of the question : {self.difficulty}
         """
         chat_completion = self.client.chat.completions.create(
             messages=[
@@ -141,7 +141,7 @@ class InterviewAssistant:
         for _ in range(self.n_q):
             context_old = self.retrieve_all_q_a()
             print(context_old)
-            question = self.generate_question(context_old, difficulty)
+            question = self.generate_question(context_old, self.difficulty)
             self.text_to_speech(question)
             audio_answer = self.record_answer()
             answer_text = self.convert_audio_to_text(audio_answer)

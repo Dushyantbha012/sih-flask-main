@@ -27,35 +27,46 @@ async def handle_interview(websocket, interview_assistant):
                 print(f"Received JSON message: {data}")  # Added print statement
                 logger.info(f"Received message: {data}")
                 action = data.get("action")
+
                 if action == "record_answer":
                     logger.info("Recording answer from audio URL.")
-                    audio_url = data.get("audio_url")
-                    if not audio_url:
-                        logger.error("Audio URL is missing.")
-                        await websocket.send("Error: Audio URL is missing.")
-                        continue
+                    # audio_url = data.get("audio_url")
+                    answer_text = data.get("answer_text")
+                    question=data.get("question")
+                    # if not audio_url:
+                    #     logger.error("Audio URL is missing.")
+                    #     await websocket.send("Error: Audio URL is missing.")
+                    #     continue
                     
                     try:
-                        audio_file_path = download_audio_file(audio_url)
-                        answer_text = interview_assistant.convert_audio_to_text(audio_file_path)
-                        os.remove(audio_file_path)  # Delete the audio file after processing
-                        await websocket.send(f"Answer recorded: {answer_text}")
+                        # audio_file_path = download_audio_file(audio_url)
+                        # answer_text = interview_assistant.convert_audio_to_text(audio_file_path)
+                        # os.remove(audio_file_path)  # Delete the audio file after processing
+                        # await websocket.send(f"Answer recorded: {answer_text}")
                         if answer_text:
                             doc_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=32))
                             interview_assistant.db.collection(interview_assistant.collection_name).document(doc_id).set({
-                                "question": "Previous question placeholder",
+                                "question": question,
                                 "answer": answer_text
                             })
+                        await websocket.send("Done")
                     except Exception as e:
                         logger.error(f"Error processing audio file: {e}")
                         await websocket.send("Error: Failed to process audio file.")
-                    
+                elif action == "get_questions":
+                    logger.info("Generating questions.")
+                    questions = []
+                    for _ in range(interview_assistant.n_q):
+                        context = interview_assistant.retrieve_all_q_a()
+                        question = interview_assistant.generate_question(context)
+                        questions.append(question)
+                    await websocket.send(json.dumps({"questions": questions}))
+                    logger.info("Questions sent to socket.")
                 elif action == "analyze":
                     logger.info("Analyzing responses.")
                     all_ques_ans = interview_assistant.retrieve_all_q_a()
                     list_n = [{'Question': q, 'Answer': a} for q, a in all_ques_ans.items()]
                     insight = interview_assistant.analyze_responses(list_n)
-                    interview_assistant.text_to_speech(insight)
                     await websocket.send(f"Analysis: {insight}")
                 elif action == "stop_interview":
                     logger.info("Stopping interview.")
@@ -108,14 +119,13 @@ async def interview_socket_handler(websocket, path):
         download_pdf(pdf_url, pdf_path)
 
         logger.info("Conducting interview based on PDF.")
-        api_key = initial_data.get("api_key", "default_api_key")
+        api_key = "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"
         interview_assistant = InterviewAssistant(api_key, pdf_path, n_q=n_q, duration=1000,difficulty=difficulty)
         logger.info("Clearing database.")
         interview_assistant.clear_database()
         response = {"status": "Database cleared. Please specify difficulty."}
         await websocket.send(json.dumps(response))
         logger.info("Sent response: Database cleared. Please specify difficulty.")
-            
         await handle_interview(websocket, interview_assistant)
     except websockets.exceptions.ConnectionClosed:
         logger.warning("WebSocket connection closed in interview_socket_handler.")
