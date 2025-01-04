@@ -15,6 +15,7 @@ from firebase_admin import credentials, firestore
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class InterviewAssistant:
+
     def __init__(self, api_key, pdf_path, collection_name="interview_answers", n_q=2, duration=30):
         self.api_key = api_key
         self.client = Groq(api_key=api_key)
@@ -166,11 +167,7 @@ class InterviewAssistant:
         self.text_to_speech(insight)
 
 
-# API key for accessing the interview assistant service
-api_key = "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"
 
-# Path to the PDF file containing the resume
-pdf_path = "/Users/kabirarora/Desktop/Resume_google_final.pdf"
 
 
 # Create an instance of the InterviewAssistant class
@@ -179,8 +176,7 @@ pdf_path = "/Users/kabirarora/Desktop/Resume_google_final.pdf"
 # - pdf_path: The path to the PDF file containing the resume
 # - n_q: The number of questions to be asked during the interview
 # - duration: The duration of the interview in seconds
-interview_assistant = InterviewAssistant(api_key, pdf_path, n_q=2, duration=1000)
+
 
 # Conduct the interview
 # This function will retrieve questions and answers, analyze the responses, and convert the insights into speech
-interview_assistant.conduct_interview()
